@@ -42,7 +42,7 @@ VOWELS = {
     'ओ': 'oː',
     'औ': 'ɔː',
     'ऋ': 'rɪ',
-    'अं': 'əm',
+    'अं': 'ə̃',
     'अः': 'əh',
 }
 
@@ -59,7 +59,7 @@ MATRAS = {
     'ौ': 'ɔː',
     'ृ': 'rɪ',
     '्': '',        # halant — suppresses inherent vowel
-    'ं': 'ŋ',        # anusvara — nasal (use ŋ, universally safe for Kokoro)
+    'ं': '̃',        # anusvara — nasal (use ŋ, universally safe for Kokoro)
     'ः': 'h',      # visarga
 }
 
@@ -356,44 +356,5 @@ def get_g2p() -> HIG2P:
     return _g2p_instance
 
 
-# ---------------------------------------------------------------------------
-# 6. QUICK SELF-TEST  (python hi.py)
-# ---------------------------------------------------------------------------
-
-if __name__ == '__main__':
-    g2p = HIG2P()
-
-    test_cases = [
-        # Devanagari
-        ("नमस्ते",                     "namaste"),
-        ("दोस्तों",                    "friends"),
-        ("आज हम एक कहानी सुनेंगे",    "today we will hear a story"),
-        ("मैं स्कूल जाता हूँ",         "I go to school"),
-        ("पानी पियो",                  "drink water"),
-        # Romanised
-        ("namaste",                    "namaste (roman)"),
-        ("doston",                     "friends (roman)"),
-        ("accha",                      "okay (roman)"),
-        # Mixed
-        ("नमस्ते doston",              "mixed"),
-    ]
-
-    print("=" * 60)
-    print("HIG2P — Hindi G2P Test")
-    print("=" * 60)
-
-    for text, meaning in test_cases:
-        ipa, tokens = g2p(text)
-        print(f"\nInput   : {text}")
-        print(f"Meaning : {meaning}")
-        print(f"IPA     : {ipa}")
-        if tokens:
-            for word, wp in tokens:
-                print(f"          {word:20s} → {wp}")
-
-    print("\n" + "=" * 60)
-    print("Done ✅")
-
-# Alias for standard interface
+# Standard interface alias
 G2P = HIG2P
-

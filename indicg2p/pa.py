@@ -1,79 +1,93 @@
-# Punjabi (Gurmukhi) G2P module for indicg2p
-# Language: Punjabi | Code: pa | Script: Gurmukhi
-# Author: Kushal Kant Bind
+# indicg2p/pa.py — Punjabi (Gurmukhi) G2P
+# Author: Kushal Kant Bind | IndicVoice Research Project
 
 import regex
+from typing import Optional, List, Tuple
 
-# Gurmukhi vowel carriers and matras → IPA
 VOWELS = {
     'ਅ': 'ə', 'ਆ': 'aː', 'ਇ': 'ɪ', 'ਈ': 'iː',
-    'ਉ': 'ʊ', 'ਊ': 'uː', 'ਏ': 'eː', 'ਐ': 'æː',
+    'ਉ': 'ʊ', 'ਊ': 'uː', 'ਏ': 'eː', 'ਐ': 'ɛː',
     'ਓ': 'oː', 'ਔ': 'ɔː',
-    # Matras
+}
+
+MATRAS = {
     'ਾ': 'aː', 'ਿ': 'ɪ', 'ੀ': 'iː',
     'ੁ': 'ʊ', 'ੂ': 'uː', 'ੇ': 'eː',
-    'ੈ': 'æː', 'ੋ': 'oː', 'ੌ': 'ɔː',
+    'ੈ': 'ɛː', 'ੋ': 'oː', 'ੌ': 'ɔː',
+    'ੰ': '̃',   # tippi — nasalise
+    'ਂ': '̃',   # bindi — nasalise
+    'ੱ': '',    # addak — geminate next consonant (handled below)
+    '੍': '',    # virama
 }
 
 CONSONANTS = {
-    'ਕ': 'k', 'ਖ': 'kʰ', 'ਗ': 'ɡ', 'ਘ': 'ɡʱ',
-    'ਚ': 'tʃ', 'ਛ': 'tʃʰ', 'ਜ': 'dʒ', 'ਝ': 'dʒʱ',
-    'ਟ': 'ʈ', 'ਠ': 'ʈʰ', 'ਡ': 'ɖ', 'ਢ': 'ɖʱ',
-    'ਤ': 't', 'ਥ': 'tʰ', 'ਦ': 'd', 'ਧ': 'dʱ',
-    'ਪ': 'p', 'ਫ': 'pʰ', 'ਬ': 'b', 'ਭ': 'bʱ',
-    'ਨ': 'n', 'ਮ': 'm', 'ਰ': 'r', 'ਲ': 'l',
-    'ਵ': 'ʋ', 'ਸ': 's', 'ਹ': 'h', 'ਯ': 'j',
-    'ਙ': 'ŋ', 'ਞ': 'ɲ', 'ਣ': 'ɳ', 'ਲ਼': 'ɭ',
-    'ੜ': 'ɽ',
+    'ਕ': 'k', 'ਖ': 'kʰ', 'ਗ': 'ɡ', 'ਘ': 'ɡʱ', 'ਙ': 'ŋ',
+    'ਚ': 'tʃ', 'ਛ': 'tʃʰ', 'ਜ': 'dʒ', 'ਝ': 'dʒʱ', 'ਞ': 'ɲ',
+    'ਟ': 'ʈ', 'ਠ': 'ʈʰ', 'ਡ': 'ɖ', 'ਢ': 'ɖʱ', 'ਣ': 'ɳ',
+    'ਤ': 't', 'ਥ': 'tʰ', 'ਦ': 'd', 'ਧ': 'dʱ', 'ਨ': 'n',
+    'ਪ': 'p', 'ਫ': 'pʰ', 'ਬ': 'b', 'ਭ': 'bʱ', 'ਮ': 'm',
+    'ਯ': 'j', 'ਰ': 'r', 'ਲ': 'l', 'ਵ': 'ʋ',
+    'ਸ': 's', 'ਹ': 'h', 'ੜ': 'ɽ',
 }
 
-# Tones: Punjabi has 3 tones
+# Punjabi tone rules
+# Low tone: words starting with voiced aspirates
+LOW_TONE = {'ਘ', 'ਝ', 'ਢ', 'ਧ', 'ਭ'}
 # High tone: words starting with ਹ
-# Low tone: voiced aspirates ਘ ਝ ਢ ਧ ਭ
-# Mid tone: default
+HIGH_TONE = {'ਹ'}
 
-HIGH_TONE_MARKER = 'ˉ'
-LOW_TONE_MARKER = 'ˬ'
+VIRAMA = '੍'
+ADDAK = 'ੱ'
 
-HIGH_TONE_INITIALS = {'ਹ'}
-LOW_TONE_CONSONANTS = {'ਘ', 'ਝ', 'ਢ', 'ਧ', 'ਭ'}
+def _word_to_ipa(word: str) -> str:
+    result = []
+    i = 0
+    # Tone detection
+    if word and word[0] in HIGH_TONE:
+        result.append('˥')
+    elif word and word[0] in LOW_TONE:
+        result.append('˩')
+
+    while i < len(word):
+        ch = word[i]
+
+        # Addak — geminate the next consonant
+        if ch == ADDAK:
+            i += 1
+            if i < len(word) and word[i] in CONSONANTS:
+                result.append(CONSONANTS[word[i]] * 2)
+                i += 1
+            continue
+
+        if ch in CONSONANTS:
+            result.append(CONSONANTS[ch])
+            # Check next char
+            nxt = word[i+1] if i+1 < len(word) else ''
+            if nxt == VIRAMA:
+                i += 2  # suppress inherent vowel
+                continue
+            elif nxt in MATRAS:
+                result.append(MATRAS[nxt])
+                i += 2
+                continue
+            elif nxt not in CONSONANTS and nxt not in VOWELS and nxt != ADDAK:
+                result.append('ə')  # inherent schwa
+        elif ch in VOWELS:
+            result.append(VOWELS[ch])
+        elif ch in MATRAS:
+            result.append(MATRAS[ch])
+
+        i += 1
+    return ''.join(result)
+
 
 class G2P:
-    def __init__(self):
-        self.vowels = VOWELS
-        self.consonants = CONSONANTS
-
-    def __call__(self, text):
-        from indicg2p.token import MToken
-        tokens = []
-        phonemes = []
+    def __call__(self, text: str) -> Tuple[str, List[Tuple[str, str]]]:
         words = text.strip().split()
+        tokens = []
+        parts = []
         for word in words:
-            ps = self._word_to_phonemes(word)
-            phonemes.extend(ps)
-            tokens.append(MToken(text=word, phonemes=''.join(ps)))
-        return ' '.join(phonemes), tokens
-
-    def _word_to_phonemes(self, word):
-        result = []
-        i = 0
-        # Detect tone
-        tone = ''
-        if word and word[0] in HIGH_TONE_INITIALS:
-            tone = HIGH_TONE_MARKER
-        elif word and word[0] in LOW_TONE_CONSONANTS:
-            tone = LOW_TONE_MARKER
-        if tone:
-            result.append(tone)
-        while i < len(word):
-            char = word[i]
-            if char in self.consonants:
-                result.append(self.consonants[char])
-                # Check for inherent vowel (schwa) if no matra follows
-                if i + 1 < len(word) and word[i+1] not in self.vowels:
-                    if i + 1 == len(word) - 1 or word[i+1] in self.consonants:
-                        result.append('ə')
-            elif char in self.vowels:
-                result.append(self.vowels[char])
-            i += 1
-        return result
+            ipa = _word_to_ipa(word)
+            tokens.append((word, ipa))
+            parts.append(ipa)
+        return ' '.join(parts), tokens
