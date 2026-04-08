@@ -26,5 +26,5 @@ Homepage = "https://github.com/Bindkushal/indic-g2p"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.hatchling.build.targets.wheel]
+[tool.hatch.build.targets.wheel]
 packages = ["indicg2p"]
