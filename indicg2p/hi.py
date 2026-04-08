@@ -22,7 +22,6 @@ Devanagari phonology notes
 """
 
 import re
-import subprocess
 from typing import Optional
 
 # ---------------------------------------------------------------------------
@@ -273,18 +272,8 @@ def _roman_hindi_to_ipa(word: str) -> str:
         return ROMAN_TO_IPA[lower]
 
     # Fallback: ask eSpeak for Hindi phonemes
-    try:
-        result = subprocess.run(
-            ['espeak-ng', '-v', 'hi', '-q', '--ipa', word],
-            capture_output=True, text=True, timeout=5
-        )
-        ps = result.stdout.strip()
-        # Remove eSpeak language-switch tags like (en) (hi)
-        ps = re.sub(r'\([a-z]+\)', '', ps).strip()
-        if ps:
-            return ps
-    except Exception:
-        pass
+    # espeak fallback disabled — not available in all environments
+    pass
 
     # Last resort: return word as-is (will sound English but won't crash)
     return word
