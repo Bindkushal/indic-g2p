@@ -11,13 +11,14 @@ requires-python = ">=3.8"
 dependencies = [
     "regex",
     "unicodedata2",
+    "addict",
+    "num2words",
+    "phonemizer",
+    "espeakng-loader",
 ]
 
 [project.optional-dependencies]
-hi = ["num2words"]
-pa = ["num2words"]
-bn = ["num2words"]
-en = ["num2words", "spacy"]
+en = ["spacy"]
 
 [project.urls]
 Homepage = "https://github.com/Bindkushal/indic-g2p"
