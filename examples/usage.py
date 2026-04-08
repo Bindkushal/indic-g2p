@@ -1,16 +1,18 @@
+#!/usr/bin/env python3
 """
-To run:
-uv venv --seed -p 3.11
-uv pip install ".[en]"
-uv run examples/usage.py    
+indic-g2p usage examples
 """
 
-from misaki import en
+# Hindi example
+from indicg2p import hi
 
-g2p = en.G2P(trf=False, british=False, fallback=None) # no transformer, American English
+g2p = hi.G2P()
+phonemes, tokens = g2p("नमस्ते दुनिया")
+print("Hindi:", phonemes)
 
-text = '[Misaki](/misˈɑki/) is a G2P engine designed for [Kokoro](/kˈOkəɹO/) models.'
+# English fallback example
+from indicg2p import en
 
-phonemes, tokens = g2p(text)
-
-print(phonemes) # misˈɑki ɪz ə ʤˈitəpˈi ˈɛnʤən dəzˈInd fɔɹ kˈOkəɹO mˈɑdᵊlz.
+g2p_en = en.G2P(trf=False, british=False, fallback=None)
+phonemes_en, tokens_en = g2p_en("Hello world")
+print("English:", phonemes_en)

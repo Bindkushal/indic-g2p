@@ -1,36 +1,23 @@
-[tool.hatch.metadata]
-allow-direct-references = true
-
 [project]
-name = "misaki"
-version = "0.9.4"
-description = "G2P engine for TTS"
+name = "indic-g2p"
+version = "0.1.0"
+description = "Native G2P engine for Indian languages"
 readme = "README.md"
 authors = [
-    { name = "hexgrad", email = "hello@hexgrad.com" }
+    { name = "Kushal Kant Bind", email = "bindkushalkant@gmail.com" }
 ]
 license = { file = "LICENSE" }
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: Apache Software License",
-    "Operating System :: OS Independent",
-]
-requires-python = ">=3.8, <3.14"
+requires-python = ">=3.8"
 dependencies = [
-    "addict",
-    "pip>=25.0.1", 
-    # ^ Spacy needs pip within Python, uv lacks pip by default
     "regex",
+    "unicodedata2",
 ]
 
 [project.optional-dependencies]
-en = ["num2words", "spacy", "spacy-curated-transformers", "phonemizer-fork", "espeakng-loader", "torch", "transformers"]
-ja = ["fugashi", "jaconv", "mojimoji", "unidic", "pyopenjtalk"]
-ko = ["jamo", "nltk"]
-zh = ["jieba", "ordered-set", "pypinyin", "cn2an", "pypinyin-dict"]
-vi = ["num2words", "spacy", "spacy-curated-transformers", "underthesea"]
-he = ["mishkal-hebrew>=0.3.2"]
+hi = ["num2words"]
+pa = ["num2words"]
+bn = ["num2words"]
+en = ["num2words", "spacy"]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[project.urls]
+Homepage = "https://github.com/Bindkushal/indic-g2p"
