@@ -2,6 +2,8 @@
 # Based on Misaki G2P architecture (hexgrad/misaki)
 # Extended for Indian languages by Kushal Kant Bind
 
+from indicg2p.normalize import normalize_text
+
 LANG_CODES = {
     'hi': 'Hindi',
     'pa': 'Punjabi',
@@ -18,7 +20,11 @@ LANG_CODES = {
     'en': 'English',
 }
 
-def get_g2p(lang_code):
+def get_g2p(lang_code, text=None):
+    # Stage 0 — normalize before anything
+    if text is not None:
+        text = normalize_text(text)
+
     if lang_code == 'hi':
         from indicg2p import hi
         return hi.G2P()
