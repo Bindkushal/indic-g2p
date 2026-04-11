@@ -19,6 +19,8 @@ dependencies = [
 
 [project.optional-dependencies]
 en = ["spacy"]
+emoji = ["emoji>=2.0.0"]
+full = ["spacy", "emoji>=2.0.0"]
 
 [project.urls]
 Homepage = "https://github.com/Bindkushal/indic-g2p"
